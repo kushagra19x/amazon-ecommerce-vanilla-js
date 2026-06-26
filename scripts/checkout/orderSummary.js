@@ -1,4 +1,4 @@
-import {cart, removeFromCart, updateDeliveryOption} from '../../data/cart.js';
+import {cart, removeFromCart, updateDeliveryOption, updateProductQuantity} from '../../data/cart.js';
 import { products , getProduct} from '../../data/products.js';
 import formatCurrency from '../utils/money.js';
 import dayjs from 'https://unpkg.com/dayjs@1.11.10/esm/index.js';
@@ -23,7 +23,7 @@ export function renderOrderSummary() {
 
     const dateString=deliveryDate.format('dddd, MMMM D');
 
-    cartSummaryHTML+=
+    cartSummaryHTML +=
     `
     <div class="cart-item-container js-cart-item-container-${matchingProduct.id}">
         <div class="delivery-date"> 
@@ -41,20 +41,23 @@ export function renderOrderSummary() {
             <div class="product-price">
               $${formatCurrency(matchingProduct.priceCents)}
             </div>
-            <div class="product-quantity">
-              <span>
+
+            <div class="product-quantity js-product-quantity-${matchingProduct.id}">
+              <span class="quantity-label-container">
                 Quantity: <span class="quantity-label">${cartItem.quantity}</span>
-              </span>
-              <span class="update-quantity-link link-primary">
+              </span> 
+
+              <span class="update-quantity-link link-primary js-update-link" data-product-id="${matchingProduct.id}">
                 Update
               </span>
+
+              <input class="quantity-input js-quantity-input-${matchingProduct.id}"
+                    type="number" min="1" value="${cartItem.quantity}" data-product-id="${matchingProduct.id}">
+
               <span class="delete-quantity-link link-primary js-delete-link" data-product-id="${matchingProduct.id}">
                 Delete   
               </span>
-            </div>
-          </div>
-
-          <div class="delivery-options">
+            </div> </div> <div class="delivery-options">
             <div class="delivery-options-title">
               Choose a delivery option:
             </div>
@@ -62,7 +65,7 @@ export function renderOrderSummary() {
           </div>
         </div>
       </div>
-    ` ;
+    `;
   });
 
   function deliveryOptionsHTML(matchingProduct,cartItem) {
@@ -121,7 +124,44 @@ export function renderOrderSummary() {
       });
     });
 
-  
+  document.querySelectorAll('.js-update-link')
+    .forEach( (button) => {
+      button.addEventListener('click', () => {
+        const productId=button.dataset.productId;
+
+        const quantityContainer=document.querySelector(`.js-product-quantity-${productId}`);
+
+        quantityContainer.classList.add('is-editing-quantity');
+
+      });
+    });
+
+  document.querySelectorAll('.quantity-input')
+    .forEach( (input) => {
+      input.addEventListener('keydown', (event) => {
+        if(event.key==='Enter') {
+          const productId=input.dataset.productId;
+
+          const newQuantity=Number(input.value);
+
+          if(newQuantity <=0 || isNaN(newQuantity)) {
+            alert('Please enter a valid quantity');
+            return; 
+          }
+        
+        updateProductQuantity(productId,newQuantity);
+
+        const quantityContainer = document.querySelector(`.js-product-quantity-${productId}`);
+
+        quantityContainer.classList.remove('is-editing-quantity');
+
+        renderOrderSummary();
+        renderPaymentSummary();
+        }
+      });
+    });
+
+
   document.querySelectorAll('.js-delivery-option')
     .forEach( (option) => {
       option.addEventListener('click', () => {
