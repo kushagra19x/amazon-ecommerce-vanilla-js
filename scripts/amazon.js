@@ -28,7 +28,7 @@ products.forEach((product)=> {
           </div>
 
           <div class="product-quantity-container">
-            <select>
+            <select class="js-select-quantity-${product.id}">
               <option selected value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
@@ -44,7 +44,7 @@ products.forEach((product)=> {
 
           <div class="product-spacer"></div>
 
-          <div class="added-to-cart">
+          <div class="added-to-cart js-added-to-cart-${product.id}">
             <img src="images/icons/checkmark.png">
             Added
           </div>
@@ -60,11 +60,37 @@ products.forEach((product)=> {
 document.querySelector('.js-products-grid')
     .innerHTML=productsHTML;
   
+
+const addedMessageTimeouts={}; //To clear stacking timeouts(See below).
+
 document.querySelectorAll('.js-add-to-cart')
-      .forEach((button) => {  
-        button.addEventListener('click', () => {
-          const productId=button.dataset.productId;
-          addToCart(productId);
-          updateCartQuantity();
-        })
-      });
+  .forEach((button) => {  
+    button.addEventListener('click', () => {
+      const productId=button.dataset.productId;
+
+      const quantitySelector=document.querySelector(`.js-select-quantity-${productId}`);
+
+      const quantity=Number(quantitySelector.value);
+
+      addToCart(productId,quantity);
+      updateCartQuantity();
+
+      const addedTickMark=document.querySelector(`.js-added-to-cart-${productId}`);
+
+      addedTickMark.classList.add('added-active');
+
+      const previousTimeoutId=addedMessageTimeouts[productId];
+      if(previousTimeoutId) {
+        clearTimeout(previousTimeoutId);
+      }
+
+      const timeoutId = setTimeout(() => {
+        addedTickMark.classList.remove('added-active')
+      }, 2000);
+
+      addedMessageTimeouts[productId]=timeoutId;
+    })
+  });
+
+  updateCartQuantity();
+
