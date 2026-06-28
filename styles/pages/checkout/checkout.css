@@ -119,6 +119,14 @@
   margin-left: 3px;
 }
 
+.js-save-quantity-button {
+  display:none;
+}
+
+.is-editing-quantity .js-save-quantity-button {
+  display: inline-block !important;
+  vertical-align: middle;
+}
 /* 1. Hide the editing input by default */
 .quantity-input {
   display: none !important; /* Forces it hidden initially */

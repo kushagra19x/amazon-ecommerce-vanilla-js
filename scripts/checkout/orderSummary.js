@@ -1,4 +1,4 @@
-import {cart, removeFromCart, updateDeliveryOption, updateProductQuantity} from '../../data/cart.js';
+import {calculateCartQuantity, cart, removeFromCart, updateDeliveryOption, updateProductQuantity} from '../../data/cart.js';
 import { products , getProduct} from '../../data/products.js';
 import formatCurrency from '../utils/money.js';
 import dayjs from 'https://unpkg.com/dayjs@1.11.10/esm/index.js';
@@ -53,6 +53,11 @@ export function renderOrderSummary() {
 
               <input class="quantity-input js-quantity-input-${matchingProduct.id}"
                     type="number" min="1" value="${cartItem.quantity}" data-product-id="${matchingProduct.id}">
+
+              <span class="save-quantity-button link-primary js-save-quantity-button" 
+               data-product-id="${matchingProduct.id}"> 
+              Save 
+              </span>
 
               <span class="delete-quantity-link link-primary js-delete-link" data-product-id="${matchingProduct.id}">
                 Delete   
@@ -121,6 +126,7 @@ export function renderOrderSummary() {
         container.remove();
         
         renderPaymentSummary();
+        renderOrderSummary(); 
       });
     });
 
@@ -144,10 +150,10 @@ export function renderOrderSummary() {
 
           const newQuantity=Number(input.value);
 
-          if(newQuantity <=0 || isNaN(newQuantity)) {
-            alert('Please enter a valid quantity');
-            return; 
-          }
+          if(newQuantity<=0 || newQuantity>1000 || isNaN(newQuantity)) {
+          alert('Please enter a valid quantity between 1 and 1000');
+          return;
+        } 
         
         updateProductQuantity(productId,newQuantity);
 
@@ -161,6 +167,27 @@ export function renderOrderSummary() {
       });
     });
 
+  document.querySelectorAll('.js-save-quantity-button')
+    .forEach( (button) => {
+      button.addEventListener( ('click'), () => {
+        const productId=button.dataset.productId;
+        const input=document.querySelector(`.js-quantity-input-${productId}`);
+        const newQuantity=Number(input.value);
+
+        if(newQuantity<=0 || newQuantity>1000 || isNaN(newQuantity)) {
+          alert('Please enter a valid quantity between 1 and 1000');
+          return;
+        }
+
+        updateProductQuantity(productId,newQuantity);
+
+      const quantityContainer=document.querySelector(`.js-product-quantity-${productId}`);
+      quantityContainer.classList.remove(`is-editing-quantity`);
+
+      renderOrderSummary();
+      renderPaymentSummary();
+      });
+    });
 
   document.querySelectorAll('.js-delivery-option')
     .forEach( (option) => {
@@ -173,6 +200,17 @@ export function renderOrderSummary() {
       })
     });
 
+    let cartQuantity=0;
+
+    cartQuantity=calculateCartQuantity();
+
+    const checkoutHeaderLink=document.querySelector('.js-return-to-home-link');
+    
+    if(checkoutHeaderLink) {
+      checkoutHeaderLink.innerHTML=`${cartQuantity} ${cartQuantity==1 ? 'item' : 'items'}`;
+    }
+
   };
+
 
   renderOrderSummary();
