@@ -13,6 +13,8 @@ export function renderOrderSummary() {
     const productId = cartItem.productId;
 
     const matchingProduct=getProduct(productId);
+
+    if (!matchingProduct) return;
     
     const deliveryOptionId=cartItem.deliveryOptionId;
 
@@ -39,7 +41,7 @@ export function renderOrderSummary() {
               ${matchingProduct.name}
             </div>
             <div class="product-price">
-              $${formatCurrency(matchingProduct.priceCents)}
+              ${matchingProduct.getPrice()}
             </div>
 
             <div class="product-quantity js-product-quantity-${matchingProduct.id}">
@@ -121,9 +123,6 @@ export function renderOrderSummary() {
       link.addEventListener('click', () => {
         const productId = link.dataset.productId;
         cart.removeFromCart(productId);
-
-        const container=document.querySelector(`.js-cart-item-container-${productId }`);
-        container.remove();
         
         renderPaymentSummary();
         renderOrderSummary(); 
