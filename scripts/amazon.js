@@ -1,4 +1,4 @@
-import{cart, addToCart, updateCartQuantity} from '../data/cart.js';
+import {cart} from '../data/cart-class.js';
 import { products } from '../data/products.js'; 
 import { formatCurrency } from './utils/money.js';
 
@@ -72,8 +72,8 @@ document.querySelectorAll('.js-add-to-cart')
 
       const quantity=Number(quantitySelector.value);
 
-      addToCart(productId,quantity);
-      updateCartQuantity();
+      cart.addToCart(productId,quantity);
+      cart.updateCartQuantity();
 
       const addedTickMark=document.querySelector(`.js-added-to-cart-${productId}`);
 
@@ -92,5 +92,5 @@ document.querySelectorAll('.js-add-to-cart')
     })
   });
 
-  updateCartQuantity();
+  cart.updateCartQuantity();
 

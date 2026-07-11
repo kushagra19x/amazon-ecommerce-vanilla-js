@@ -1,5 +1,5 @@
 import {renderOrderSummary} from '../../scripts/checkout/orderSummary.js';
-import {loadFromStorage, cart} from '../../data/cart.js';
+import {cart} from '../../data/cart-class.js';
 
 
 describe('Test Suite: renderOrderSummary', () => {
@@ -16,20 +16,21 @@ describe('Test Suite: renderOrderSummary', () => {
       .innerHTML=`<div class="js-order-summary"> </div>
                   <div class="js-payment-summary"> </div>`;
 
-    spyOn(localStorage, 'getItem').and.callFake( () => {
-          return JSON.stringify([{
-            productId: productId1,
-            quantity: 2,
-            deliveryOptionId:'1'
-          }, {
-            productId: productId2,
-            quantity: 1,
-            deliveryOptionId:'2'
-              }]);
-        });
-        loadFromStorage();
+    cart.cartItems = [{
+      productId: productId1,
+      quantity: 2,
+      deliveryOptionId: '1'
+    }, {
+      productId: productId2,
+      quantity: 1,
+      deliveryOptionId: '2'
+    }];
 
         renderOrderSummary();
+  });
+
+  afterEach(() => {
+    document.querySelector('.js-test-container').innerHTML = '';
   });
   
   it('displays the cart', () => {
@@ -37,15 +38,12 @@ describe('Test Suite: renderOrderSummary', () => {
         expect(document.querySelectorAll('.js-cart-item-container').length).toEqual(2);
 
         expect(
-          document.querySelector(`.js-product-quantity-${productId1}`).innerText
+          document.querySelector(`.js-product-quantity-${productId1}`).textContent
         ).toContain('Quantity: 2');
 
         expect(
-          document.querySelector(`.js-product-quantity-${productId2}`).innerText
+          document.querySelector(`.js-product-quantity-${productId2}`).textContent
         ).toContain('Quantity: 1');
-
-        document.querySelector('.js-test-container')
-          .innerHTML='';
   });
 
   it('removes a product', () => {
@@ -62,10 +60,7 @@ describe('Test Suite: renderOrderSummary', () => {
           document.querySelector(`.js-cart-item-container-${productId2}`)
         ).not.toEqual(null);
 
-        expect(cart.length).toEqual(1);
-        expect(cart[0].productId).toEqual(productId2);
-
-        document.querySelector('.js-test-container')
-          .innerHTML='';
+        expect(cart.cartItems.length).toEqual(1);
+        expect(cart.cartItems[0].productId).toEqual(productId2);
   });
 });

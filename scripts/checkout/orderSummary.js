@@ -1,4 +1,4 @@
-import {calculateCartQuantity, cart, removeFromCart, updateDeliveryOption, updateProductQuantity} from '../../data/cart.js';
+import {cart} from '../../data/cart-class.js'
 import { products , getProduct} from '../../data/products.js';
 import formatCurrency from '../utils/money.js';
 import dayjs from 'https://unpkg.com/dayjs@1.11.10/esm/index.js';
@@ -8,7 +8,7 @@ import { renderPaymentSummary } from './paymentSummary.js';
 export function renderOrderSummary() {
 
   let cartSummaryHTML='';
-  cart.forEach( (cartItem) => {
+  cart.cartItems.forEach( (cartItem) => {
 
     const productId = cartItem.productId;
 
@@ -120,7 +120,7 @@ export function renderOrderSummary() {
     .forEach((link) => {
       link.addEventListener('click', () => {
         const productId = link.dataset.productId;
-        removeFromCart(productId);
+        cart.removeFromCart(productId);
 
         const container=document.querySelector(`.js-cart-item-container-${productId }`);
         container.remove();
@@ -155,7 +155,7 @@ export function renderOrderSummary() {
           return;
         } 
         
-        updateProductQuantity(productId,newQuantity);
+        cart.updateProductQuantity(productId,newQuantity);
 
         const quantityContainer = document.querySelector(`.js-product-quantity-${productId}`);
 
@@ -179,7 +179,7 @@ export function renderOrderSummary() {
           return;
         }
 
-        updateProductQuantity(productId,newQuantity);
+        cart.updateProductQuantity(productId,newQuantity);
 
       const quantityContainer=document.querySelector(`.js-product-quantity-${productId}`);
       quantityContainer.classList.remove(`is-editing-quantity`);
@@ -194,7 +194,7 @@ export function renderOrderSummary() {
       option.addEventListener('click', () => {
       
       const {productId, deliveryOptionId} = option.dataset;
-      updateDeliveryOption(productId, deliveryOptionId);
+      cart.updateDeliveryOption(productId, deliveryOptionId);
       renderOrderSummary();
       renderPaymentSummary();
       })
@@ -202,7 +202,7 @@ export function renderOrderSummary() {
 
     let cartQuantity=0;
 
-    cartQuantity=calculateCartQuantity();
+    cartQuantity=cart.calculateCartQuantity();
 
     const checkoutHeaderLink=document.querySelector('.js-return-to-home-link');
     
