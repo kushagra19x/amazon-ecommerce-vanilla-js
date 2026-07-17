@@ -1,98 +1,103 @@
 import {cart} from '../data/cart-class.js';
-import { products } from '../data/products.js'; 
+import { products , loadProducts} from '../data/products.js'; 
 import { formatCurrency } from './utils/money.js';
 
-let productsHTML='';
-products.forEach((product)=> {
-  productsHTML+=`
-      <div class="product-container">
-          <div class="product-image-container">
-            <img class="product-image"
-              src="${product.image}">
-          </div>
+loadProducts(renderProductGrid);
 
-          <div class="product-name limit-text-to-2-lines">
-            ${product.name}
-          </div>
-
-          <div class="product-rating-container">
-            <img class="product-rating-stars"
-              src="${product.getStarsUrl()}">
-            <div class="product-rating-count link-primary">
-              ${product.rating.count}
+function renderProductGrid()
+{
+  let productsHTML='';
+  products.forEach((product)=> {
+    productsHTML+=`
+        <div class="product-container">
+            <div class="product-image-container">
+              <img class="product-image"
+                src="${product.image}">
             </div>
+
+            <div class="product-name limit-text-to-2-lines">
+              ${product.name}
+            </div>
+
+            <div class="product-rating-container">
+              <img class="product-rating-stars"
+                src="${product.getStarsUrl()}">
+              <div class="product-rating-count link-primary">
+                ${product.rating.count}
+              </div>
+            </div>
+
+            <div class="product-price">
+              ${product.getPrice()}
+            </div>
+
+            <div class="product-quantity-container">
+              <select class="js-select-quantity-${product.id}">
+                <option selected value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+              </select>
+            </div>
+
+            ${product.extraInfoHTML()}
+
+            <div class="product-spacer"></div>
+
+            <div class="added-to-cart js-added-to-cart-${product.id}">
+              <img src="images/icons/checkmark.png">
+              Added
+            </div>
+
+            <button class="add-to-cart-button button-primary js-add-to-cart" 
+            data-product-id="${product.id}" >
+              Add to Cart
+            </button>
           </div>
+    `;
+  })
 
-          <div class="product-price">
-            ${product.getPrice()}
-          </div>
+  document.querySelector('.js-products-grid')
+      .innerHTML=productsHTML;
+    
 
-          <div class="product-quantity-container">
-            <select class="js-select-quantity-${product.id}">
-              <option selected value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10</option>
-            </select>
-          </div>
+  const addedMessageTimeouts={}; //To clear stacking timeouts(See below).
 
-          ${product.extraInfoHTML()}
+  document.querySelectorAll('.js-add-to-cart')
+    .forEach((button) => {  
+      button.addEventListener('click', () => {
+        const productId=button.dataset.productId;
 
-          <div class="product-spacer"></div>
+        const quantitySelector=document.querySelector(`.js-select-quantity-${productId}`);
 
-          <div class="added-to-cart js-added-to-cart-${product.id}">
-            <img src="images/icons/checkmark.png">
-            Added
-          </div>
+        const quantity=Number(quantitySelector.value);
 
-          <button class="add-to-cart-button button-primary js-add-to-cart" 
-          data-product-id="${product.id}" >
-            Add to Cart
-          </button>
-        </div>
-  `;
-})
+        cart.addToCart(productId,quantity);
+        cart.updateCartQuantity();
 
-document.querySelector('.js-products-grid')
-    .innerHTML=productsHTML;
-  
+        const addedTickMark=document.querySelector(`.js-added-to-cart-${productId}`);
 
-const addedMessageTimeouts={}; //To clear stacking timeouts(See below).
+        addedTickMark.classList.add('added-active');
 
-document.querySelectorAll('.js-add-to-cart')
-  .forEach((button) => {  
-    button.addEventListener('click', () => {
-      const productId=button.dataset.productId;
+        const previousTimeoutId=addedMessageTimeouts[productId];
+        if(previousTimeoutId) {
+          clearTimeout(previousTimeoutId);
+        }
 
-      const quantitySelector=document.querySelector(`.js-select-quantity-${productId}`);
+        const timeoutId = setTimeout(() => {
+          addedTickMark.classList.remove('added-active')
+        }, 2000);
 
-      const quantity=Number(quantitySelector.value);
+        addedMessageTimeouts[productId]=timeoutId;
+      })
+    });
 
-      cart.addToCart(productId,quantity);
-      cart.updateCartQuantity();
+    cart.updateCartQuantity();
 
-      const addedTickMark=document.querySelector(`.js-added-to-cart-${productId}`);
-
-      addedTickMark.classList.add('added-active');
-
-      const previousTimeoutId=addedMessageTimeouts[productId];
-      if(previousTimeoutId) {
-        clearTimeout(previousTimeoutId);
-      }
-
-      const timeoutId = setTimeout(() => {
-        addedTickMark.classList.remove('added-active')
-      }, 2000);
-
-      addedMessageTimeouts[productId]=timeoutId;
-    })
-  });
-
-  cart.updateCartQuantity();
-
+  }
