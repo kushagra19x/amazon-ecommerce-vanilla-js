@@ -59,6 +59,30 @@ class Clothing extends Product {
   }
 };
 
+//There are built in classes in js too. Example Date() class - example
+// const date = new Date(); creates a current date object.
+
+/*
+function logThis()
+{
+  console.log(this);
+}
+
+logThis.call('hello');
+
+BUT using arrow function syntax will not change the value of this. It keeps the original value of this outside the arrow function.
+
+this
+const object2 = {
+  method : () => {
+    console.log(this);
+  }
+};
+
+object2.method(); this will return undefined
+*/
+
+
 export const products = [
   {
     id: "e43638ce-6aa0-4b85-b27f-e1d07eb678c6",
