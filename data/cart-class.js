@@ -113,3 +113,19 @@ export const cart=new Cart('cart-oop');
 
 export const businessCart=new Cart('cart-business');
 
+
+export function loadCart(func) {
+  const xhr = new XMLHttpRequest();
+
+  xhr.addEventListener('load', () => {
+     console.log(xhr.response);
+
+     if(typeof func === 'function')
+     {
+      func();
+     }
+  });
+
+  xhr.open('GET', 'https://supersimplebackend.dev/cart');
+  xhr.send();
+};
