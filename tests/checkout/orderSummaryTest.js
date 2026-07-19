@@ -1,6 +1,6 @@
 import {renderOrderSummary} from '../../scripts/checkout/orderSummary.js';
 import {cart} from '../../data/cart-class.js';
-import { loadProducts } from '../../data/products.js';
+import { loadProductsFetch } from '../../data/products.js';
 
 
 describe('Test Suite: renderOrderSummary', () => {
@@ -9,9 +9,9 @@ describe('Test Suite: renderOrderSummary', () => {
   const productId2='15b6fc6f-327a-4ec4-896f-486349e85a3d';
 
   beforeAll( (done) => {
-    loadProducts( () => {
+    loadProductsFetch().then(()=>{
       done();
-    })
+    });
   });
 
   //afterEach hook is available too for cleanup lines at last

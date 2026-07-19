@@ -105,6 +105,39 @@ extraInfoHTML() {
 
 export let products=[];
 
+//Fetch uses a promise instead of callback usage in XMLHttpRequest
+export function loadProductsFetch()
+{
+  const promise = fetch('https://supersimplebackend.dev/products')
+    .then((response) => {
+      return response.json(); //It did JSON.parse automatically of the response so we will not have to do it manually now.
+    }).then((productData) => {
+      products = productData.map( (productDetails) => {
+        if(productDetails.type=='clothing')
+        {
+          return new Clothing(productDetails);
+        }
+
+        else if(productDetails.type=='appliance')
+        {
+          return new Appliance(productDetails);
+        }
+        return new Product(productDetails);
+      });
+
+      console.log('Loaded products successfully'); 
+    });
+
+    return promise;
+}
+
+/*
+loadProductsFetch().then(() => {
+  console.log('next step');
+}); 
+*/
+
+
 export function loadProducts(func) {
   const xhr = new XMLHttpRequest();
 
@@ -122,12 +155,12 @@ export function loadProducts(func) {
       return new Product(productDetails);
      });
 
+     console.log('Loaded products successfully');
+
      if(typeof func === 'function')
      {
       func();
      }
-     
-     console.log('Loaded products successfully');
   });
 
   xhr.open('GET', 'https://supersimplebackend.dev/products');
